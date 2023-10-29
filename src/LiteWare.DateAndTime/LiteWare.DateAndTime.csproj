@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>0.1.0-alpha</Version>
+    <Authors>Hisham Maudarbocus</Authors>
+    <Company>LiteWare</Company>
+    <Description>A library that brings new date and time functionalities.</Description>
+    <Copyright>Copyright (c) 2023 Hisham Maudarbocus</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/samsam07/LiteWare.DateAndTime</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>date; time</PackageTags>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
