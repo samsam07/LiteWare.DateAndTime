@@ -8,7 +8,7 @@ namespace LiteWare.DateAndTime
         {
             if (string.IsNullOrWhiteSpace(literal))
             {
-                throw new ArgumentNullException("The provided string literal is null, empty or white space.");
+                throw new ArgumentNullException(nameof(literal), "The provided string literal is null, empty or white space.");
             }
 
             int iCurrent = 0;

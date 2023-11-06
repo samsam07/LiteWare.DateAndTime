@@ -230,13 +230,15 @@ namespace LiteWare.DateAndTime
         {
             StringBuilder stringBuilder = new StringBuilder();
 
-            void AppendSeparatorIfNeeded()
-            {
-                if (stringBuilder.Length > 0)
-                {
-                    stringBuilder.Append(' ');
-                }
-            }
+            Append(YearValue, YearSymbol, IsYearValueFixed);
+            Append(MonthValue, MonthSymbol, IsMonthValueFixed);
+            Append(DayValue, DaySymbol, IsDayValueFixed);
+            Append(HourValue, HourSymbol, IsHourValueFixed);
+            Append(MinuteValue, Minuteymbol, IsMinuteValueFixed);
+            Append(SecondValue, SecondSymbol, IsSecondValueFixed);
+            Append(MillisecondValue, MillisecondSymbol, IsMillisecondValueFixed);
+
+            return stringBuilder.ToString();
 
             void Append(int value, string valueSymbol, bool isValueFixed)
             {
@@ -259,15 +261,13 @@ namespace LiteWare.DateAndTime
                 }
             }
 
-            Append(YearValue, YearSymbol, IsYearValueFixed);
-            Append(MonthValue, MonthSymbol, IsMonthValueFixed);
-            Append(DayValue, DaySymbol, IsDayValueFixed);
-            Append(HourValue, HourSymbol, IsHourValueFixed);
-            Append(MinuteValue, Minuteymbol, IsMinuteValueFixed);
-            Append(SecondValue, SecondSymbol, IsSecondValueFixed);
-            Append(MillisecondValue, MillisecondSymbol, IsMillisecondValueFixed);
-
-            return stringBuilder.ToString();
+            void AppendSeparatorIfNeeded()
+            {
+                if (stringBuilder.Length > 0)
+                {
+                    stringBuilder.Append(' ');
+                }
+            }
         }
 
         /// <summary>

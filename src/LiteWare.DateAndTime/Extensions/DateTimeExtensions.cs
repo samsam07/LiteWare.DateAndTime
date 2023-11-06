@@ -141,5 +141,125 @@ namespace LiteWare.DateAndTime.Extensions
 
             return dateTime.AddMilliseconds(millisecond - dateTime.Millisecond);
         }
+
+        // ON
+
+        // On ...
+        // OnStartOfMonth...
+        // OnStartOfYear...
+        // OnQuarter...
+
+        // AT
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> with the specified time of day from the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <param name="hour">The desired hour component of the time.</param>
+        /// <param name="minute">The desired minute component of the time.</param>
+        /// <param name="second">The desired second component of the time.</param>
+        /// <param name="millisecond">The desired millisecond component of the time.</param>
+        /// <returns>A new <see cref="DateTime"/> with the specified time of day.</returns>
+        public static DateTime At(this DateTime dateTime, int hour, int minute, int second, int millisecond)
+        {
+            return dateTime
+                .ChangeHour(hour)
+                .ChangeMinute(minute)
+                .ChangeSecond(second)
+                .ChangeMillisecond(millisecond);
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> with the specified time of day from the original <paramref name="dateTime."/>
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <param name="hour">The desired hour component of the time.</param>
+        /// <param name="minute">The desired minute component of the time. Defaults to 0 if not provided.</param>
+        /// <param name="second">The desired second component of the time. Defaults to 0 if not provided.</param>
+        /// <returns>A new <see cref="DateTime"/> with the specified time of day.</returns>
+        public static DateTime At(this DateTime dateTime, int hour, int minute = 0, int second = 0)
+        {
+            return dateTime.At(hour, minute, second, 0);
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> with the time of day adjusted to the specified <paramref name="time"/> from the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <param name="time">A <see cref="TimeSpan"/> representing the desired time of day.</param>
+        /// <returns>A new <see cref="DateTime"/> with the time of day adjusted to the specified <paramref name="time"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown when an <paramref name="time"/> with a total duration greater than 24 hours is provided, as it cannot be used to determine a specific time of day.
+        /// </exception>
+        public static DateTime At(this DateTime dateTime, TimeSpan time)
+        {
+            if (time.TotalDays > 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(dateTime), "Invalid time span provided. Time spans greater than 24 hours cannot be used to determine a specific time of day.");
+            }
+
+            return dateTime.At(time.Hours, time.Minutes, time.Seconds, time.Milliseconds);
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> with the time set to noon (12:00:00.000) from the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <returns>A new <see cref="DateTime"/> set to noon.</returns>
+        public static DateTime AtNoon(this DateTime dateTime)
+        {
+            return dateTime.At(12);
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> with the time set to midnight (00:00:00.000) from the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <returns>A new <see cref="DateTime"/> set to midnight.</returns>
+        public static DateTime AtMidnight(this DateTime dateTime)
+        {
+            return dateTime.Date;
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> with the time set to the start of the day (00:00:00.000) from the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <returns>A new <see cref="DateTime"/> set to the start of the day.</returns>
+        public static DateTime AtStartOfDay(this DateTime dateTime)
+        {
+            return dateTime.Date;
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> with the time set to the end of the day (23:59:59.999) from the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <returns>A new <see cref="DateTime"/> set to the end of the day.</returns>
+        public static DateTime AtEndOfDay(this DateTime dateTime)
+        {
+            return dateTime.Date.AddTicks(TimeSpan.TicksPerDay - 1);
+        }
+
+        // IS
+
+        // IsToday
+        // IsSameDate
+        // IsBefore
+        // IsAfter
+        // IsBetween
+        // IsWeekday
+        // IsWeekend
+        // IsLeapYear
+        // IsInFuture
+        // IsInPast
+        // IsTodayBirthday
+        // IsSameMonth
+        // IsSameYear
+        // IsEndOfMonth
+        // IsStartOfYear
+        // IsSameHour
+        // IsBeforeNoon
+        // IsAfterNoon
     }
 }
