@@ -142,15 +142,6 @@ namespace LiteWare.DateAndTime.Extensions
             return dateTime.AddMilliseconds(millisecond - dateTime.Millisecond);
         }
 
-        // ON
-
-        // On ...
-        // OnStartOfMonth...
-        // OnStartOfYear...
-        // OnQuarter...
-
-        // AT
-
         /// <summary>
         /// Returns a new <see cref="DateTime"/> with the specified time of day from the original <paramref name="dateTime"/>.
         /// </summary>
@@ -241,25 +232,101 @@ namespace LiteWare.DateAndTime.Extensions
             return dateTime.Date.AddTicks(TimeSpan.TicksPerDay - 1);
         }
 
-        // IS
+        // On ...
+        // OnStartOfMonth...
+        // OnStartOfYear...
+        // OnQuarter...
 
-        // IsToday
-        // IsSameDate
-        // IsBefore
-        // IsAfter
-        // IsBetween
-        // IsWeekday
-        // IsWeekend
-        // IsLeapYear
-        // IsInFuture
-        // IsInPast
-        // IsTodayBirthday
-        // IsSameMonth
-        // IsSameYear
-        // IsEndOfMonth
-        // IsStartOfYear
-        // IsSameHour
-        // IsBeforeNoon
-        // IsAfterNoon
+        /// <summary>
+        /// Determines if the current <see cref="DateTime"/> is before the specified <paramref name="referenceDateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The current <see cref="DateTime"/> to compare.</param>
+        /// <param name="referenceDateTime">The reference <see cref="DateTime"/> for comparison.</param>
+        /// <returns><c>true</c> if the current <see cref="DateTime"/> is before the reference <see cref="DateTime"/>; otherwise, <c>false</c>.</returns>
+        public static bool IsBefore(this DateTime dateTime, DateTime referenceDateTime)
+        {
+            return dateTime < referenceDateTime;
+        }
+
+        /// <summary>
+        /// Determines if the current <see cref="DateTime"/> is on or before the specified <paramref name="referenceDateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The current <see cref="DateTime"/> to compare.</param>
+        /// <param name="referenceDateTime">The reference <see cref="DateTime"/> for comparison.</param>
+        /// <returns><c>true</c> if the current <see cref="DateTime"/> is on or before the reference <see cref="DateTime"/>; otherwise, <c>false</c>.</returns>
+        public static bool IsOnOrBefore(this DateTime dateTime, DateTime referenceDateTime)
+        {
+            return dateTime <= referenceDateTime;
+        }
+
+        /// <summary>
+        /// Determines if the current <see cref="DateTime"/> is after the specified <paramref name="referenceDateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The current <see cref="DateTime"/> to compare.</param>
+        /// <param name="referenceDateTime">The reference <see cref="DateTime"/> for comparison.</param>
+        /// <returns><c>true</c> if the current <see cref="DateTime"/> is after the reference <see cref="DateTime"/>; otherwise, <c>false</c>.</returns>
+        public static bool IsAfter(this DateTime dateTime, DateTime referenceDateTime)
+        {
+            return dateTime > referenceDateTime;
+        }
+
+        /// <summary>
+        /// Determines if the current <see cref="DateTime"/> is on or after the specified <paramref name="referenceDateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The current <see cref="DateTime"/> to compare.</param>
+        /// <param name="referenceDateTime">The reference <see cref="DateTime"/> for comparison.</param>
+        /// <returns><c>true</c> if the current <see cref="DateTime"/> is on or after the reference <see cref="DateTime"/>; otherwise, <c>false</c>.</returns>
+        public static bool IsOnOrAfter(this DateTime dateTime, DateTime referenceDateTime)
+        {
+            return dateTime >= referenceDateTime;
+        }
+
+        /// <summary>
+        /// Determines if the current <see cref="DateTime"/> is within the date range specified by <paramref name="startDateTime"/> and <paramref name="endDateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The current <see cref="DateTime"/> to compare.</param>
+        /// <param name="startDateTime">The start of the date range for comparison.</param>
+        /// <param name="endDateTime">The end of the date range for comparison.</param>
+        /// <param name="inclusiveComparison">A flag indicating whether the comparison is inclusive (default) or exclusive.</param>
+        /// <returns><c>true</c> if the current <see cref="DateTime"/> is within the specified date range; otherwise, <c>false</c>.</returns>
+        public static bool IsBetween(this DateTime dateTime, DateTime startDateTime, DateTime endDateTime, bool inclusiveComparison = true)
+        {
+            if (inclusiveComparison)
+            {
+                return dateTime >= startDateTime && dateTime <= endDateTime;
+            }
+
+            return dateTime > startDateTime && dateTime < endDateTime;
+        }
+
+        /// <summary>
+        /// Determines if the current <see cref="DateTime"/> falls on a weekday (Monday to Friday).
+        /// </summary>
+        /// <param name="dateTime">The current <see cref="DateTime"/> to evaluate.</param>
+        /// <returns><c>true</c> if the current <see cref="DateTime"/> is a weekday; otherwise, <c>false</c>.</returns>
+        public static bool IsWeekday(this DateTime dateTime)
+        {
+            return dateTime.DayOfWeek >= DayOfWeek.Monday && dateTime.DayOfWeek <= DayOfWeek.Friday;
+        }
+
+        /// <summary>
+        /// Determines if the current <see cref="DateTime"/> falls on a weekend day (Saturday or Sunday).
+        /// </summary>
+        /// <param name="dateTime">The current <see cref="DateTime"/> to evaluate.</param>
+        /// <returns><c>true</c> if the current <see cref="DateTime"/> is a weekend day; otherwise, <c>false</c>.</returns>
+        public static bool IsWeekend(this DateTime dateTime)
+        {
+            return dateTime.DayOfWeek == DayOfWeek.Saturday || dateTime.DayOfWeek == DayOfWeek.Sunday;
+        }
+
+        /// <summary>
+        /// Determines if the year of the current <see cref="DateTime"/> is a leap year.
+        /// </summary>
+        /// <param name="dateTime">The current <see cref="DateTime"/> to evaluate.</param>
+        /// <returns><c>true</c> if the year of the current <see cref="DateTime"/> is a leap year; otherwise, <c>false</c>.</returns>
+        public static bool IsLeapYear(this DateTime dateTime)
+        {
+            return DateTime.IsLeapYear(dateTime.Year);
+        }
     }
 }

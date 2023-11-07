@@ -140,6 +140,8 @@ namespace LiteWare.DateAndTime
             return RelativeDateTimeParser.Parse(literal);
         }
 
+        // TODO: TryParse
+
         /// <summary>
         /// Evaluates the relative date and time to calculate an absolute <see cref="DateTime"/> value based on the current date and time.
         /// </summary>
