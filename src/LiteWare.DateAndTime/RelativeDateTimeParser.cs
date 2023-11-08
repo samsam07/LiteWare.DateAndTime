@@ -90,7 +90,7 @@ namespace LiteWare.DateAndTime
                     relativeDateTime.IsHourValueFixed = isFixedValue;
                     break;
 
-                case RelativeDateTime.Minuteymbol:
+                case RelativeDateTime.MinuteSymbol:
                     relativeDateTime.MinuteValue = value;
                     relativeDateTime.IsMinuteValueFixed = isFixedValue;
                     break;

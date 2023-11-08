@@ -34,7 +34,7 @@ namespace LiteWare.DateAndTime
         /// <summary>
         /// A string symbol that represents the minute component in a relative date and time string literal.
         /// </summary>
-        public const string Minuteymbol = "m";
+        public const string MinuteSymbol = "m";
 
         /// <summary>
         /// A string symbol that represents the second component in a relative date and time string literal.
@@ -236,7 +236,7 @@ namespace LiteWare.DateAndTime
             Append(MonthValue, MonthSymbol, IsMonthValueFixed);
             Append(DayValue, DaySymbol, IsDayValueFixed);
             Append(HourValue, HourSymbol, IsHourValueFixed);
-            Append(MinuteValue, Minuteymbol, IsMinuteValueFixed);
+            Append(MinuteValue, MinuteSymbol, IsMinuteValueFixed);
             Append(SecondValue, SecondSymbol, IsSecondValueFixed);
             Append(MillisecondValue, MillisecondSymbol, IsMillisecondValueFixed);
 
