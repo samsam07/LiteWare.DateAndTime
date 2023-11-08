@@ -232,10 +232,54 @@ namespace LiteWare.DateAndTime.Extensions
             return dateTime.Date.AddTicks(TimeSpan.TicksPerDay - 1);
         }
 
-        // On ...
-        // OnStartOfMonth...
-        // OnStartOfYear...
-        // OnQuarter...
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> representing the start of the month at 00:00:00.000 of the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <returns>A new <see cref="DateTime"/> set to the start of the month.</returns>
+        public static DateTime OnStartOfMonth(this DateTime dateTime)
+        {
+            return dateTime
+                .ChangeDay(1)
+                .AtStartOfDay();
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> representing the end of the month at 23:59:59.999 of the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <returns>A new <see cref="DateTime"/> set to the end of the month.</returns>
+        public static DateTime OnEndOfMonth(this DateTime dateTime)
+        {
+            int lastDayOfMonth = DateTime.DaysInMonth(dateTime.Year, dateTime.Month);
+            return dateTime
+                .ChangeDay(lastDayOfMonth)
+                .AtEndOfDay();
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> representing the start of the year on January at 00:00:00.000 of the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <returns>A new <see cref="DateTime"/> set to the start of the year.</returns>
+        public static DateTime OnStartOfYear(this DateTime dateTime)
+        {
+            return dateTime
+                .ChangeMonth(1)
+                .OnStartOfMonth();
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> representing the end of the year on December at 23:59:59.999 of the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <returns>A new <see cref="DateTime"/> set to the end of the year.</returns>
+        public static DateTime OnEndOfYear(this DateTime dateTime)
+        {
+            return dateTime
+                .ChangeMonth(12)
+                .OnEndOfMonth();
+        }
 
         /// <summary>
         /// Determines if the current <see cref="DateTime"/> is before the specified <paramref name="referenceDateTime"/>.
