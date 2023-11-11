@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>0.1.0-alpha</Version>
+    <Version>0.1.0-alpha2</Version>
     <Authors>Hisham Maudarbocus</Authors>
     <Company>LiteWare</Company>
     <Description>A library that brings new date and time functionalities.</Description>

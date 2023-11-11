@@ -4,6 +4,8 @@ namespace LiteWare.DateAndTime.Extensions
 {
     // Inspired from: https://stackoverflow.com/a/41805608/5240378
 
+    //TODO: extensions should have CultureInfo or culture calendar to be more precise in diff cultures?
+
     /// <summary>
     /// Provides extension methods for manipulating and modifying <see cref="DateTime"/> objects.
     /// </summary>
@@ -231,6 +233,8 @@ namespace LiteWare.DateAndTime.Extensions
         {
             return dateTime.Date.AddTicks(TimeSpan.TicksPerDay - 1);
         }
+
+        //TODO: OnStartOfWeek(..., DayOfWeek firstDayOfWeek) + OnEndOfWeek
 
         /// <summary>
         /// Returns a new <see cref="DateTime"/> representing the start of the month at 00:00:00.000 of the original <paramref name="dateTime"/>.
