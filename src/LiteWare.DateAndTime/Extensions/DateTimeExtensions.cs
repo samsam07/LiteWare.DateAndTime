@@ -2,7 +2,7 @@
 
 namespace LiteWare.DateAndTime.Extensions
 {
-    // Inspired from: https://stackoverflow.com/a/41805608/5240378
+    // Inspired from https://edgeguides.rubyonrails.org/active_support_core_extensions.html#extensions-to-date
 
     //TODO: extensions should have CultureInfo or culture calendar to be more precise in diff cultures?
 
@@ -11,6 +11,118 @@ namespace LiteWare.DateAndTime.Extensions
     /// </summary>
     public static class DateTimeExtensions
     {
+        #region Add Methods
+
+        /// <summary>
+        /// Adds a specified number of weeks to the current <see cref="DateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to which weeks will be added.</param>
+        /// <param name="value">The number of weeks to add. It can be a fractional value.</param>
+        /// <returns>A new <see cref="DateTime"/> representing the result of adding the specified weeks to the original <paramref name="dateTime"/>.</returns>
+        public static DateTime AddWeeks(this DateTime dateTime, double value)
+        {
+            return dateTime.AddDays(value * 7);
+        }
+
+        #endregion
+
+        #region Get Methods
+
+        /// <summary>
+        /// Gets the current quarter of the year for the specified <paramref name="dateTime"/>.
+        /// Quarters are numbered from 1 to 4.
+        /// </summary>
+        /// <param name="dateTime">The <see cref="DateTime"/> for which to determine the quarter.</param>
+        /// <returns>An integer representing the current quarter of the year.</returns>
+        public static int GetCurrentQuarter(this DateTime dateTime)
+        {
+            return (dateTime.Month - 1) / 3 + 1;
+        }
+
+        #endregion
+
+        #region At Methods
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> with the time of day adjusted to the specified <paramref name="time"/> from the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <param name="time">A <see cref="TimeSpan"/> representing the desired time of day.</param>
+        /// <returns>A new <see cref="DateTime"/> with the time of day adjusted to the specified <paramref name="time"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown when an <paramref name="time"/> with a total duration greater than 24 hours is provided, as it cannot be used to determine a specific time of day.
+        /// </exception>
+        public static DateTime At(this DateTime dateTime, TimeSpan time)
+        {
+            if (time.TotalDays > 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(dateTime), "Invalid time span provided. Time spans greater than 24 hours cannot be used to determine a specific time of day.");
+            }
+
+            return dateTime.Date.Add(time);
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> with the specified time of day from the original <paramref name="dateTime."/>
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <param name="hour">The desired hour component of the time.</param>
+        /// <param name="minute">The desired minute component of the time. Defaults to 0 if not provided.</param>
+        /// <param name="second">The desired second component of the time. Defaults to 0 if not provided.</param>
+        /// <param name="millisecond">The desired millisecond component of the time. Defaults to 0 if not provided.</param>
+        /// <returns>A new <see cref="DateTime"/> with the specified time of day.</returns>
+        public static DateTime At(this DateTime dateTime, int hour, int minute = 0, int second = 0, int millisecond = 0)
+        {
+            TimeSpan time = new TimeSpan(0, hour, minute, second, millisecond);
+            return dateTime.At(time);
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> with the time set to noon (12:00:00.000) from the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <returns>A new <see cref="DateTime"/> set to noon.</returns>
+        public static DateTime AtNoon(this DateTime dateTime)
+        {
+            return dateTime.At(12);
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> with the time set to midnight (00:00:00.000) from the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <returns>A new <see cref="DateTime"/> set to midnight.</returns>
+        public static DateTime AtMidnight(this DateTime dateTime)
+        {
+            return dateTime.Date;
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> with the time set to the start of the day (00:00:00.000) from the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <returns>A new <see cref="DateTime"/> set to the start of the day.</returns>
+        public static DateTime AtStartOfDay(this DateTime dateTime)
+        {
+            return dateTime.Date;
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> with the time set to the end of the day (23:59:59.999) from the original <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
+        /// <returns>A new <see cref="DateTime"/> set to the end of the day.</returns>
+        public static DateTime AtEndOfDay(this DateTime dateTime)
+        {
+            return dateTime.Date.AddTicks(TimeSpan.TicksPerDay - 1);
+        }
+
+        #endregion
+
+        #region Change Methods
+
+        // Inspired from https://stackoverflow.com/a/41805608/5240378
+
         /// <summary>
         /// Changes the year of the <paramref name="dateTime"/> to the specified <paramref name="year"/>.
         /// </summary>
@@ -144,97 +256,52 @@ namespace LiteWare.DateAndTime.Extensions
             return dateTime.AddMilliseconds(millisecond - dateTime.Millisecond);
         }
 
+        #endregion
+
+        #region On Methods
+
         /// <summary>
-        /// Returns a new <see cref="DateTime"/> with the specified time of day from the original <paramref name="dateTime"/>.
+        /// Returns a new <see cref="DateTime"/> representing the start of the week for the specified <paramref name="dateTime"/>.
         /// </summary>
-        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
-        /// <param name="hour">The desired hour component of the time.</param>
-        /// <param name="minute">The desired minute component of the time.</param>
-        /// <param name="second">The desired second component of the time.</param>
-        /// <param name="millisecond">The desired millisecond component of the time.</param>
-        /// <returns>A new <see cref="DateTime"/> with the specified time of day.</returns>
-        public static DateTime At(this DateTime dateTime, int hour, int minute, int second, int millisecond)
+        /// <param name="dateTime">The original <see cref="DateTime"/>.</param>
+        /// <param name="firstDayOfWeek">The first day of the week (default is Monday).</param>
+        /// <returns>A new <see cref="DateTime"/> set to the start of the week.</returns>
+        public static DateTime OnStartOfWeek(this DateTime dateTime, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
         {
+            int diff = (7 + dateTime.DayOfWeek - firstDayOfWeek) % 7;
+            return dateTime.Date.AddDays(-diff);
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> representing the end of the week for the specified <paramref name="dateTime"/>.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/>.</param>
+        /// <param name="firstDayOfWeek">The first day of the week (default is Monday).</param>
+        /// <returns>A new <see cref="DateTime"/> set to the end of the week.</returns>
+        public static DateTime OnEndOfWeek(this DateTime dateTime, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
+        {
+            int diff = (7 + dateTime.DayOfWeek - firstDayOfWeek) % 7;
             return dateTime
-                .ChangeHour(hour)
-                .ChangeMinute(minute)
-                .ChangeSecond(second)
-                .ChangeMillisecond(millisecond);
+                .Date
+                .AddDays(6 - diff)
+                .AtEndOfDay();
         }
 
         /// <summary>
-        /// Returns a new <see cref="DateTime"/> with the specified time of day from the original <paramref name="dateTime."/>
+        /// Returns a new <see cref="DateTime"/> representing the specified <paramref name="day"/> of the week for the specified <paramref name="dateTime"/>.
         /// </summary>
-        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
-        /// <param name="hour">The desired hour component of the time.</param>
-        /// <param name="minute">The desired minute component of the time. Defaults to 0 if not provided.</param>
-        /// <param name="second">The desired second component of the time. Defaults to 0 if not provided.</param>
-        /// <returns>A new <see cref="DateTime"/> with the specified time of day.</returns>
-        public static DateTime At(this DateTime dateTime, int hour, int minute = 0, int second = 0)
+        /// <param name="dateTime">The original <see cref="DateTime"/>.</param>
+        /// <param name="day">The target day of the week.</param>
+        /// <param name="firstDayOfWeek">The first day of the week (default is Monday).</param>
+        /// <returns>A new <see cref="DateTime"/> set to the specified <paramref name="day"/> of the week.</returns>
+        public static DateTime OnDayOfWeek(this DateTime dateTime, DayOfWeek day, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
         {
-            return dateTime.At(hour, minute, second, 0);
+            int days = (7 + day - firstDayOfWeek) % 7;
+            return dateTime
+                .OnStartOfWeek(firstDayOfWeek)
+                .AddDays(days)
+                .At(dateTime.TimeOfDay);
         }
-
-        /// <summary>
-        /// Returns a new <see cref="DateTime"/> with the time of day adjusted to the specified <paramref name="time"/> from the original <paramref name="dateTime"/>.
-        /// </summary>
-        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
-        /// <param name="time">A <see cref="TimeSpan"/> representing the desired time of day.</param>
-        /// <returns>A new <see cref="DateTime"/> with the time of day adjusted to the specified <paramref name="time"/>.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Thrown when an <paramref name="time"/> with a total duration greater than 24 hours is provided, as it cannot be used to determine a specific time of day.
-        /// </exception>
-        public static DateTime At(this DateTime dateTime, TimeSpan time)
-        {
-            if (time.TotalDays > 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(dateTime), "Invalid time span provided. Time spans greater than 24 hours cannot be used to determine a specific time of day.");
-            }
-
-            return dateTime.At(time.Hours, time.Minutes, time.Seconds, time.Milliseconds);
-        }
-
-        /// <summary>
-        /// Returns a new <see cref="DateTime"/> with the time set to noon (12:00:00.000) from the original <paramref name="dateTime"/>.
-        /// </summary>
-        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
-        /// <returns>A new <see cref="DateTime"/> set to noon.</returns>
-        public static DateTime AtNoon(this DateTime dateTime)
-        {
-            return dateTime.At(12);
-        }
-
-        /// <summary>
-        /// Returns a new <see cref="DateTime"/> with the time set to midnight (00:00:00.000) from the original <paramref name="dateTime"/>.
-        /// </summary>
-        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
-        /// <returns>A new <see cref="DateTime"/> set to midnight.</returns>
-        public static DateTime AtMidnight(this DateTime dateTime)
-        {
-            return dateTime.Date;
-        }
-
-        /// <summary>
-        /// Returns a new <see cref="DateTime"/> with the time set to the start of the day (00:00:00.000) from the original <paramref name="dateTime"/>.
-        /// </summary>
-        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
-        /// <returns>A new <see cref="DateTime"/> set to the start of the day.</returns>
-        public static DateTime AtStartOfDay(this DateTime dateTime)
-        {
-            return dateTime.Date;
-        }
-
-        /// <summary>
-        /// Returns a new <see cref="DateTime"/> with the time set to the end of the day (23:59:59.999) from the original <paramref name="dateTime"/>.
-        /// </summary>
-        /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
-        /// <returns>A new <see cref="DateTime"/> set to the end of the day.</returns>
-        public static DateTime AtEndOfDay(this DateTime dateTime)
-        {
-            return dateTime.Date.AddTicks(TimeSpan.TicksPerDay - 1);
-        }
-
-        //TODO: OnStartOfWeek(..., DayOfWeek firstDayOfWeek) + OnEndOfWeek
 
         /// <summary>
         /// Returns a new <see cref="DateTime"/> representing the start of the month at 00:00:00.000 of the original <paramref name="dateTime"/>.
@@ -262,7 +329,7 @@ namespace LiteWare.DateAndTime.Extensions
         }
 
         /// <summary>
-        /// Returns a new <see cref="DateTime"/> representing the start of the year on January at 00:00:00.000 of the original <paramref name="dateTime"/>.
+        /// Returns a new <see cref="DateTime"/> representing the start of the year on 1st January at 00:00:00.000 of the original <paramref name="dateTime"/>.
         /// </summary>
         /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
         /// <returns>A new <see cref="DateTime"/> set to the start of the year.</returns>
@@ -274,7 +341,7 @@ namespace LiteWare.DateAndTime.Extensions
         }
 
         /// <summary>
-        /// Returns a new <see cref="DateTime"/> representing the end of the year on December at 23:59:59.999 of the original <paramref name="dateTime"/>.
+        /// Returns a new <see cref="DateTime"/> representing the end of the year on 31th December at 23:59:59.999 of the original <paramref name="dateTime"/>.
         /// </summary>
         /// <param name="dateTime">The original <see cref="DateTime"/> to adjust.</param>
         /// <returns>A new <see cref="DateTime"/> set to the end of the year.</returns>
@@ -284,6 +351,42 @@ namespace LiteWare.DateAndTime.Extensions
                 .ChangeMonth(12)
                 .OnEndOfMonth();
         }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> representing the start of the quarter for the specified <paramref name="dateTime"/>.
+        /// Quarters are numbered from 1 to 4.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/>.</param>
+        /// <returns>A new <see cref="DateTime"/> set to the start of the quarter.</returns>
+        public static DateTime OnStartOfQuarter(this DateTime dateTime)
+        {
+            int currentQuarter = dateTime.GetCurrentQuarter();
+            int startOfQuarterMonth = (currentQuarter - 1) * 3 + 1;
+
+            return dateTime
+                .ChangeMonth(startOfQuarterMonth)
+                .OnStartOfMonth();
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="DateTime"/> representing the end of the quarter for the specified <paramref name="dateTime"/>.
+        /// Quarters are numbered from 1 to 4.
+        /// </summary>
+        /// <param name="dateTime">The original <see cref="DateTime"/>.</param>
+        /// <returns>A new <see cref="DateTime"/> set to the end of the quarter.</returns>
+        public static DateTime OnEndOfQuarter(this DateTime dateTime)
+        {
+            int currentQuarter = dateTime.GetCurrentQuarter();
+            int endOfQuarterMonth = currentQuarter * 3;
+
+            return dateTime
+                .ChangeMonth(endOfQuarterMonth)
+                .OnEndOfMonth();
+        }
+
+        #endregion
+
+        #region Is Methods
 
         /// <summary>
         /// Determines if the current <see cref="DateTime"/> is before the specified <paramref name="referenceDateTime"/>.
@@ -376,5 +479,9 @@ namespace LiteWare.DateAndTime.Extensions
         {
             return DateTime.IsLeapYear(dateTime.Year);
         }
+
+        #endregion
+
+        // TODO: For??? ex ForAllYear/ForWholeYear -> Returns date range
     }
 }
