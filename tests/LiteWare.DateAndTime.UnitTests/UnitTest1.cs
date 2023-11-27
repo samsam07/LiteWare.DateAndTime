@@ -11,6 +11,8 @@ namespace LiteWare.DateAndTime.UnitTests
             RelativeDateTime relativeDateTime = "-1d @ 8H 30m 0s";
             DateTime evaluatedRelativeDateTime = relativeDateTime.Evaluate(referenceDateTime);
 
+            var x = TimeZoneInfo.Local;
+
             Assert.Equal(evaluatedRelativeDateTime, expectedDateTime);
         }
     }
