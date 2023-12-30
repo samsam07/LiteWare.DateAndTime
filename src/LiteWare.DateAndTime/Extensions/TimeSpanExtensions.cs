@@ -48,23 +48,23 @@ namespace LiteWare.DateAndTime.Extensions
         }
 
         /// <summary>
-        /// Determines if the current <see cref="TimeSpan"/> is on or after the specified <paramref name="referenceTimeSpan"/>.
+        /// Determines if the current <see cref="TimeSpan"/> is at or after the specified <paramref name="referenceTimeSpan"/>.
         /// </summary>
         /// <param name="timeSpan">The current <see cref="TimeSpan"/> to compare.</param>
         /// <param name="referenceTimeSpan">The reference <see cref="TimeSpan"/> for comparison.</param>
         /// <returns><c>true</c> if the current <see cref="TimeSpan"/> is on or after the reference <see cref="TimeSpan"/>; otherwise, <c>false</c>.</returns>
-        public static bool IsOnOrAfter(this TimeSpan timeSpan, TimeSpan referenceTimeSpan)
+        public static bool IsAtOrAfter(this TimeSpan timeSpan, TimeSpan referenceTimeSpan)
         {
             return timeSpan >= referenceTimeSpan;
         }
 
         /// <summary>
-        /// Determines if the current <see cref="TimeSpan"/> is on or before the specified <paramref name="referenceTimeSpan"/>.
+        /// Determines if the current <see cref="TimeSpan"/> is at or before the specified <paramref name="referenceTimeSpan"/>.
         /// </summary>
         /// <param name="timeSpan">The current <see cref="TimeSpan"/> to compare.</param>
         /// <param name="referenceTimeSpan">The reference <see cref="TimeSpan"/> for comparison.</param>
         /// <returns><c>true</c> if the current <see cref="TimeSpan"/> is on or before the reference <see cref="TimeSpan"/>; otherwise, <c>false</c>.</returns>
-        public static bool IsOnOrBefore(this TimeSpan timeSpan, TimeSpan referenceTimeSpan)
+        public static bool IsAtOrBefore(this TimeSpan timeSpan, TimeSpan referenceTimeSpan)
         {
             return timeSpan <= referenceTimeSpan;
         }

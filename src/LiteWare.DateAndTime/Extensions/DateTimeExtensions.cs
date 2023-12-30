@@ -5,8 +5,6 @@ namespace LiteWare.DateAndTime.Extensions
     // Inspired from https://edgeguides.rubyonrails.org/active_support_core_extensions.html#extensions-to-date
     // Change methods inspired from https://stackoverflow.com/a/41805608/5240378
 
-    //TODO: extensions should have CultureInfo or culture calendar to be more precise in diff cultures?
-
     /// <summary>
     /// Provides extension methods for manipulating and modifying <see cref="DateTime"/> objects.
     /// </summary>
@@ -39,7 +37,8 @@ namespace LiteWare.DateAndTime.Extensions
                 throw new ArgumentOutOfRangeException(nameof(dateTime), "Invalid time span provided. Time spans greater than 24 hours cannot be used to determine a specific time of day.");
             }
 
-            return dateTime.Date.Add(time);
+            long adjustedTicks = time.Ticks - (dateTime.Ticks % TimeSpan.TicksPerDay);
+            return dateTime.AddTicks(adjustedTicks);
         }
 
         /// <summary>
@@ -54,7 +53,9 @@ namespace LiteWare.DateAndTime.Extensions
         public static DateTime At(this DateTime dateTime, int hour, int minute = 0, int second = 0, int millisecond = 0)
         {
             TimeSpan time = new TimeSpan(0, hour, minute, second, millisecond);
-            return dateTime.At(time);
+            long adjustedTicks = time.Ticks - (dateTime.Ticks % TimeSpan.TicksPerDay);
+
+            return dateTime.AddTicks(adjustedTicks);
         }
 
         /// <summary>
@@ -64,7 +65,8 @@ namespace LiteWare.DateAndTime.Extensions
         /// <returns>A new <see cref="DateTime"/> set to the end of the day.</returns>
         public static DateTime AtEndOfDay(this DateTime dateTime)
         {
-            return dateTime.Date.AddTicks(TimeSpan.TicksPerDay - 1);
+            long adjustedTicks = (TimeSpan.TicksPerDay - 1) - (dateTime.Ticks % TimeSpan.TicksPerDay);
+            return dateTime.AddTicks(adjustedTicks);
         }
 
         /// <summary>
@@ -84,7 +86,7 @@ namespace LiteWare.DateAndTime.Extensions
         /// <returns>A new <see cref="DateTime"/> set to noon.</returns>
         public static DateTime AtNoon(this DateTime dateTime)
         {
-            return dateTime.At(12);
+            return dateTime.Date.AddHours(12);
         }
 
         /// <summary>
@@ -252,6 +254,11 @@ namespace LiteWare.DateAndTime.Extensions
             return dateTime > referenceDateTime;
         }
 
+        public static bool IsAfter(this DateTime dateTime, TimeSpan referenceTimeOfDay)
+        {
+            return dateTime.TimeOfDay.IsAfter(referenceTimeOfDay);
+        }
+
         /// <summary>
         /// Determines if the current <see cref="DateTime"/> is before the specified <paramref name="referenceDateTime"/>.
         /// </summary>
@@ -261,6 +268,11 @@ namespace LiteWare.DateAndTime.Extensions
         public static bool IsBefore(this DateTime dateTime, DateTime referenceDateTime)
         {
             return dateTime < referenceDateTime;
+        }
+
+        public static bool IsBefore(this DateTime dateTime, TimeSpan referenceTimeOfDay)
+        {
+            return dateTime.TimeOfDay.IsBefore(referenceTimeOfDay);
         }
 
         /// <summary>
@@ -279,6 +291,11 @@ namespace LiteWare.DateAndTime.Extensions
             }
 
             return dateTime > startDateTime && dateTime < endDateTime;
+        }
+
+        public static bool IsBetween(this DateTime dateTime, TimeSpan startTimeOfDay, TimeSpan endTimeOfDay, bool inclusiveComparison = true)
+        {
+            return dateTime.TimeOfDay.IsBetween(startTimeOfDay, endTimeOfDay, inclusiveComparison);
         }
 
         /// <summary>
@@ -302,6 +319,11 @@ namespace LiteWare.DateAndTime.Extensions
             return dateTime >= referenceDateTime;
         }
 
+        public static bool IsAtOrAfter(this DateTime dateTime, TimeSpan referenceTimeOfDay)
+        {
+            return dateTime.TimeOfDay.IsAtOrAfter(referenceTimeOfDay);
+        }
+
         /// <summary>
         /// Determines if the current <see cref="DateTime"/> is on or before the specified <paramref name="referenceDateTime"/>.
         /// </summary>
@@ -311,6 +333,11 @@ namespace LiteWare.DateAndTime.Extensions
         public static bool IsOnOrBefore(this DateTime dateTime, DateTime referenceDateTime)
         {
             return dateTime <= referenceDateTime;
+        }
+
+        public static bool IsAtOrBefore(this DateTime dateTime, TimeSpan referenceTimeOfDay)
+        {
+            return dateTime.TimeOfDay.IsAtOrBefore(referenceTimeOfDay);
         }
 
         /// <summary>
@@ -331,22 +358,6 @@ namespace LiteWare.DateAndTime.Extensions
         public static bool IsWeekend(this DateTime dateTime)
         {
             return dateTime.DayOfWeek == DayOfWeek.Saturday || dateTime.DayOfWeek == DayOfWeek.Sunday;
-        }
-
-        /// <summary>
-        /// Returns a new <see cref="DateTime"/> representing the specified <paramref name="day"/> of the week for the specified <paramref name="dateTime"/>.
-        /// </summary>
-        /// <param name="dateTime">The original <see cref="DateTime"/>.</param>
-        /// <param name="day">The target day of the week.</param>
-        /// <param name="firstDayOfWeek">The first day of the week (default is Monday).</param>
-        /// <returns>A new <see cref="DateTime"/> set to the specified <paramref name="day"/> of the week.</returns>
-        public static DateTime OnDayOfWeek(this DateTime dateTime, DayOfWeek day, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
-        {
-            int days = (7 + day - firstDayOfWeek) % 7;
-            return dateTime
-                .OnStartOfWeek(firstDayOfWeek)
-                .AddDays(days)
-                .At(dateTime.TimeOfDay);
         }
 
         /// <summary>
@@ -456,7 +467,5 @@ namespace LiteWare.DateAndTime.Extensions
                 .ChangeMonth(1)
                 .OnStartOfMonth();
         }
-
-        // TODO: For??? ex ForAllYear/ForWholeYear -> Returns date range
     }
 }

@@ -4,8 +4,6 @@ using System.Text;
 
 namespace LiteWare.DateAndTime
 {
-    //TODO: Add RelativeTimeSpan and RelativeDateTimeOffset + DateTimeRange and DateTimeRangePreset + get DateTimeRange from preset
-
     /// <summary>
     /// Represents a relative instance in time, typically expressed as a date and time of day.
     /// </summary>

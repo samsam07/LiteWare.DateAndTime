@@ -2,6 +2,9 @@
 
 namespace LiteWare.DateAndTime.Extensions
 {
+    // Inspired from https://edgeguides.rubyonrails.org/active_support_core_extensions.html#extensions-to-date
+    // Change methods inspired from https://stackoverflow.com/a/41805608/5240378
+
     /// <summary>
     /// Provides extension methods for manipulating and modifying <see cref="DateTimeOffset"/> objects.
     /// </summary>
@@ -40,19 +43,6 @@ namespace LiteWare.DateAndTime.Extensions
         }
 
         /// <summary>
-        /// Returns a new <see cref="DateTimeOffset"/> with the time set according to the provided <paramref name="time"/> and adjusted for the specified <paramref name="timeZoneInfo"/>.
-        /// </summary>
-        /// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/> to adjust.</param>
-        /// <param name="time">The time span representing the desired time of day.</param>
-        /// <param name="timeZoneInfo">The <see cref="TimeZoneInfo"/> to use for adjusting the time.</param>
-        /// <returns>A new <see cref="DateTimeOffset"/> set to the specified time and adjusted based on the specified <paramref name="timeZoneInfo"/>.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="time"/> represents a time span greater than 24 hours.</exception>
-        public static DateTimeOffset At(this DateTimeOffset dateTimeOffset, TimeSpan time, TimeZoneInfo timeZoneInfo)
-        {
-            return dateTimeOffset.At(time, timeZoneInfo.BaseUtcOffset);
-        }
-
-        /// <summary>
         /// Returns a new <see cref="DateTimeOffset"/> with the time set according to the provided <paramref name="time"/> and adjusted for the specified <paramref name="kind"/>.
         /// </summary>
         /// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/> to adjust.</param>
@@ -63,26 +53,26 @@ namespace LiteWare.DateAndTime.Extensions
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="kind"/> has an unsupported value.</exception>
         public static DateTimeOffset At(this DateTimeOffset dateTimeOffset, TimeSpan time, DateTimeKind kind = DateTimeKind.Unspecified)
         {
-            TimeSpan timeZoneOffset;
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset);
+            return dateTimeOffset.At(time, timeZoneOffset);
+        }
+
+        private static TimeSpan GetTimeZoneOffsetFromKind(DateTimeKind kind, TimeSpan defaultTimeOffset)
+        {
             switch (kind)
             {
                 case DateTimeKind.Unspecified:
-                    timeZoneOffset = dateTimeOffset.Offset;
-                    break;
+                    return defaultTimeOffset;
 
                 case DateTimeKind.Utc:
-                    timeZoneOffset = TimeZoneInfo.Utc.BaseUtcOffset;
-                    break;
+                    return TimeZoneInfo.Utc.BaseUtcOffset;
 
                 case DateTimeKind.Local:
-                    timeZoneOffset = TimeZoneInfo.Local.BaseUtcOffset;
-                    break;
+                    return TimeZoneInfo.Local.BaseUtcOffset;
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, $"Unsupported {nameof(DateTimeKind)} value.");
             }
-
-            return dateTimeOffset.At(time, timeZoneOffset);
         }
 
         /// <summary>
@@ -99,22 +89,6 @@ namespace LiteWare.DateAndTime.Extensions
         {
             TimeSpan time = new TimeSpan(0, hour, minute, second, millisecond);
             return dateTimeOffset.At(time, timeZoneOffset);
-        }
-
-        /// <summary>
-        /// Returns a new <see cref="DateTimeOffset"/> with the specified time of day from the original <paramref name="dateTimeOffset"/> and adjusted for the specified <paramref name="timeZoneInfo"/>.
-        /// </summary>
-        /// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/> to adjust.</param>
-        /// <param name="timeZoneInfo">The <see cref="TimeZoneInfo"/> to use for adjusting the time.</param>
-        /// <param name="hour">The hour of the day.</param>
-        /// <param name="minute">The minute of the hour (default is 0).</param>
-        /// <param name="second">The second of the minute (default is 0).</param>
-        /// <param name="millisecond">The millisecond of the second (default is 0).</param>
-        /// <returns>A new <see cref="DateTimeOffset"/> set to the specified time and adjusted based on the specified <paramref name="timeZoneInfo"/>.</returns>
-        public static DateTimeOffset At(this DateTimeOffset dateTimeOffset, TimeZoneInfo timeZoneInfo, int hour, int minute = 0, int second = 0, int millisecond = 0)
-        {
-            TimeSpan time = new TimeSpan(0, hour, minute, second, millisecond);
-            return dateTimeOffset.At(time, timeZoneInfo);
         }
 
         /// <summary>
@@ -161,18 +135,6 @@ namespace LiteWare.DateAndTime.Extensions
         }
 
         /// <summary>
-        /// Returns a new <see cref="DateTimeOffset"/> with the time set to the end of the day (23:59:59.999) from the original <paramref name="dateTimeOffset"/> and adjusted for the specified <paramref name="timeZoneInfo"/>.
-        /// </summary>
-        /// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/> to adjust.</param>
-        /// <param name="timeZoneInfo">The <see cref="TimeZoneInfo"/> to use for adjusting the time.</param>
-        /// <returns>A new <see cref="DateTimeOffset"/> set to the end of the day.</returns>
-        public static DateTimeOffset AtEndOfDay(this DateTimeOffset dateTimeOffset, TimeZoneInfo timeZoneInfo)
-        {
-            TimeSpan time = TimeSpan.FromTicks(TimeSpan.TicksPerDay - 1);
-            return dateTimeOffset.At(time, timeZoneInfo);
-        }
-
-        /// <summary>
         /// Returns a new <see cref="DateTimeOffset"/> with the time set to the end of the day (23:59:59.999) from the original <paramref name="dateTimeOffset"/> and adjusted for the specified <paramref name="kind"/>.
         /// </summary>
         /// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/> to adjust.</param>
@@ -193,17 +155,6 @@ namespace LiteWare.DateAndTime.Extensions
         public static DateTimeOffset AtMidnight(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset)
         {
             return dateTimeOffset.At(TimeSpan.Zero, timeZoneOffset);
-        }
-
-        /// <summary>
-        /// Returns a new <see cref="DateTimeOffset"/> with the time set to midnight (00:00:00.000) from the original <paramref name="dateTimeOffset"/> and adjusted for the specified <paramref name="timeZoneInfo"/>.
-        /// </summary>
-        /// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/> to adjust.</param>
-        /// <param name="timeZoneInfo">The <see cref="TimeZoneInfo"/> to use for adjusting the time.</param>
-        /// <returns>A new <see cref="DateTimeOffset"/> set to midnight.</returns>
-        public static DateTimeOffset AtMidnight(this DateTimeOffset dateTimeOffset, TimeZoneInfo timeZoneInfo)
-        {
-            return dateTimeOffset.At(TimeSpan.Zero, timeZoneInfo);
         }
 
         /// <summary>
@@ -229,17 +180,6 @@ namespace LiteWare.DateAndTime.Extensions
         }
 
         /// <summary>
-        /// Returns a new <see cref="DateTimeOffset"/> with the time set to noon (12:00:00.000) from the original <paramref name="dateTimeOffset"/> and adjusted for the specified <paramref name="timeZoneInfo"/>.
-        /// </summary>
-        /// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/> to adjust.</param>
-        /// <param name="timeZoneInfo">The <see cref="TimeZoneInfo"/> to use for adjusting the time.</param>
-        /// <returns>A new <see cref="DateTimeOffset"/> set to noon.</returns>
-        public static DateTimeOffset AtNoon(this DateTimeOffset dateTimeOffset, TimeZoneInfo timeZoneInfo)
-        {
-            return dateTimeOffset.At(timeZoneInfo, 12);
-        }
-
-        /// <summary>
         /// Returns a new <see cref="DateTimeOffset"/> with the time set to noon (12:00:00.000) from the original <paramref name="dateTimeOffset"/> and adjusted for the specified <paramref name="kind"/>.
         /// </summary>
         /// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/> to adjust.</param>
@@ -259,17 +199,6 @@ namespace LiteWare.DateAndTime.Extensions
         public static DateTimeOffset AtStartOfDay(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset)
         {
             return dateTimeOffset.At(TimeSpan.Zero, timeZoneOffset);
-        }
-
-        /// <summary>
-        /// Returns a new <see cref="DateTimeOffset"/> with the time set to the start of the day (00:00:00.000) from the original <paramref name="dateTimeOffset"/> and adjusted for the specified <paramref name="timeZoneInfo"/>.
-        /// </summary>
-        /// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/> to adjust.</param>
-        /// <param name="timeZoneInfo">The <see cref="TimeZoneInfo"/> to use for adjusting the time.</param>
-        /// <returns>A new <see cref="DateTimeOffset"/> set to the start of the day.</returns>
-        public static DateTimeOffset AtStartOfDay(this DateTimeOffset dateTimeOffset, TimeZoneInfo timeZoneInfo)
-        {
-            return dateTimeOffset.At(TimeSpan.Zero, timeZoneInfo);
         }
 
         /// <summary>
@@ -416,47 +345,43 @@ namespace LiteWare.DateAndTime.Extensions
             return dateTimeOffset.AddYears(year - dateTimeOffset.Year);
         }
 
-        /// <summary>
-        /// Gets the current quarter of the year for the specified <paramref name="dateTimeOffset"/>.
-        /// Quarters are numbered from 1 to 4.
-        /// </summary>
-        /// <param name="dateTimeOffset">The <see cref="DateTimeOffset"/> for which to determine the quarter.</param>
-        /// <returns>An integer representing the current quarter of the year.</returns>
-        public static int GetCurrentQuarter(this DateTimeOffset dateTimeOffset)
+        public static int GetCurrentQuarter(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset)
         {
-            return (dateTimeOffset.Month - 1) / 3 + 1;
+            int month = dateTimeOffset.ToOffset(timeZoneOffset).Month;
+            return (month - 1) / 3 + 1;
         }
 
-        ///// <summary>
-        ///// Determines if the current <see cref="DateTimeOffset"/> is after the specified <paramref name="referenceDateTimeOffset"/>.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The current <see cref="DateTimeOffset"/> to compare.</param>
-        ///// <param name="referenceDateTimeOffset">The reference <see cref="DateTimeOffset"/> for comparison.</param>
-        ///// <returns><c>true</c> if the current <see cref="DateTimeOffset"/> is after the reference <see cref="DateTimeOffset"/>; otherwise, <c>false</c>.</returns>
-        //public static bool IsAfter(this DateTimeOffset dateTimeOffset, DateTimeOffset referenceDateTimeOffset)
+        public static int GetCurrentQuarter(this DateTimeOffset dateTimeOffset, DateTimeKind kind = DateTimeKind.Unspecified)
+        {
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset);
+            return dateTimeOffset.GetCurrentQuarter(timeZoneOffset);
+        }
+
+        //public static bool IsAfter(this DateTimeOffset dateTimeOffset, DateTimeOffset referenceDateTimeOffset, TimeSpan timeZoneOffset)
         //{
-        //    return dateTimeOffset > referenceDateTimeOffset;
+        //    return dateTimeOffset.ToOffset(timeZoneOffset) > referenceDateTimeOffset.ToOffset???;
         //}
 
-        ///// <summary>
-        ///// Determines if the current <see cref="DateTimeOffset"/> is before the specified <paramref name="referenceDateTimeOffset"/>.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The current <see cref="DateTimeOffset"/> to compare.</param>
-        ///// <param name="referenceDateTimeOffset">The reference <see cref="DateTimeOffset"/> for comparison.</param>
-        ///// <returns><c>true</c> if the current <see cref="DateTimeOffset"/> is before the reference <see cref="DateTimeOffset"/>; otherwise, <c>false</c>.</returns>
+        public static bool IsAfter(this DateTimeOffset dateTimeOffset, DateTimeOffset referenceDateTimeOffset, DateTimeKind kind = DateTimeKind.Unspecified)
+        {
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset);
+            return dateTimeOffset.IsAfter(referenceDateTimeOffset, timeZoneOffset);
+        }
+
+        public static bool IsAfter(this DateTimeOffset dateTimeOffset, DateTime referenceDateTime, TimeSpan timeZoneOffset)
+        {
+            return dateTimeOffset.ToOffset(timeZoneOffset) > referenceDateTimeOffset;
+        }
+
+        //public static bool IsAfter(this DateTimeOffset dateTimeOffset, TimeSpan referenceTimeOfDay)
+
         //public static bool IsBefore(this DateTimeOffset dateTimeOffset, DateTimeOffset referenceDateTimeOffset)
         //{
         //    return dateTimeOffset < referenceDateTimeOffset;
         //}
 
-        ///// <summary>
-        ///// Determines if the current <see cref="DateTimeOffset"/> is within the date range specified by <paramref name="startDateTimeOffset"/> and <paramref name="endDateTimeOffset"/>.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The current <see cref="DateTimeOffset"/> to compare.</param>
-        ///// <param name="startDateTimeOffset">The start of the date range for comparison.</param>
-        ///// <param name="endDateTimeOffset">The end of the date range for comparison.</param>
-        ///// <param name="inclusiveComparison">A flag indicating whether the comparison is inclusive (default) or exclusive.</param>
-        ///// <returns><c>true</c> if the current <see cref="DateTimeOffset"/> is within the specified date range; otherwise, <c>false</c>.</returns>
+        //public static bool IsBefore(this DateTimeOffset dateTimeOffset, TimeSpan referenceTimeOfDay)
+
         //public static bool IsBetween(this DateTimeOffset dateTimeOffset, DateTimeOffset startDateTimeOffset, DateTimeOffset endDateTimeOffset, bool inclusiveComparison = true)
         //{
         //    if (inclusiveComparison)
@@ -467,180 +392,171 @@ namespace LiteWare.DateAndTime.Extensions
         //    return dateTimeOffset > startDateTimeOffset && dateTimeOffset < endDateTimeOffset;
         //}
 
-        ///// <summary>
-        ///// Determines if the year of the current <see cref="DateTimeOffset"/> is a leap year.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The current <see cref="DateTimeOffset"/> to evaluate.</param>
-        ///// <returns><c>true</c> if the year of the current <see cref="DateTimeOffset"/> is a leap year; otherwise, <c>false</c>.</returns>
-        //public static bool IsLeapYear(this DateTimeOffset dateTimeOffset)
-        //{
-        //    return DateTimeOffset.IsLeapYear(dateTimeOffset.Year);
-        //}
+        //public static bool IsBetween(this DateTimeOffset dateTimeOffset, TimeSpan startDateTimeOfDay, TimeSpan endDateTimeOfDay, bool inclusiveComparison = true)
 
-        ///// <summary>
-        ///// Determines if the current <see cref="DateTimeOffset"/> is on or after the specified <paramref name="referenceDateTimeOffset"/>.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The current <see cref="DateTimeOffset"/> to compare.</param>
-        ///// <param name="referenceDateTimeOffset">The reference <see cref="DateTimeOffset"/> for comparison.</param>
-        ///// <returns><c>true</c> if the current <see cref="DateTimeOffset"/> is on or after the reference <see cref="DateTimeOffset"/>; otherwise, <c>false</c>.</returns>
+        public static bool IsLeapYear(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset)
+        {
+            int year  = dateTimeOffset.ToOffset(timeZoneOffset).Year;
+            return DateTime.IsLeapYear(year);
+        }
+
+        public static bool IsLeapYear(this DateTimeOffset dateTimeOffset, DateTimeKind kind = DateTimeKind.Unspecified)
+        {
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset);
+            return dateTimeOffset.IsLeapYear(timeZoneOffset);
+        }
+
         //public static bool IsOnOrAfter(this DateTimeOffset dateTimeOffset, DateTimeOffset referenceDateTimeOffset)
         //{
         //    return dateTimeOffset >= referenceDateTimeOffset;
         //}
 
-        ///// <summary>
-        ///// Determines if the current <see cref="DateTimeOffset"/> is on or before the specified <paramref name="referenceDateTimeOffset"/>.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The current <see cref="DateTimeOffset"/> to compare.</param>
-        ///// <param name="referenceDateTimeOffset">The reference <see cref="DateTimeOffset"/> for comparison.</param>
-        ///// <returns><c>true</c> if the current <see cref="DateTimeOffset"/> is on or before the reference <see cref="DateTimeOffset"/>; otherwise, <c>false</c>.</returns>
+        //public static bool IsAtOrAfter(this DateTimeOffset dateTimeOffset, TimeSpan referenceTimeOfDay)
+
         //public static bool IsOnOrBefore(this DateTimeOffset dateTimeOffset, DateTimeOffset referenceDateTimeOffset)
         //{
         //    return dateTimeOffset <= referenceDateTimeOffset;
         //}
 
-        ///// <summary>
-        ///// Determines if the current <see cref="DateTimeOffset"/> falls on a weekday (Monday to Friday).
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The current <see cref="DateTimeOffset"/> to evaluate.</param>
-        ///// <returns><c>true</c> if the current <see cref="DateTimeOffset"/> is a weekday; otherwise, <c>false</c>.</returns>
-        //public static bool IsWeekday(this DateTimeOffset dateTimeOffset)
-        //{
-        //    return dateTimeOffset.DayOfWeek >= DayOfWeek.Monday && dateTimeOffset.DayOfWeek <= DayOfWeek.Friday;
-        //}
+        //public static bool IsAtOrBefore(this DateTimeOffset dateTimeOffset, TimeSpan referenceTimeOfDay)
 
-        ///// <summary>
-        ///// Determines if the current <see cref="DateTimeOffset"/> falls on a weekend day (Saturday or Sunday).
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The current <see cref="DateTimeOffset"/> to evaluate.</param>
-        ///// <returns><c>true</c> if the current <see cref="DateTimeOffset"/> is a weekend day; otherwise, <c>false</c>.</returns>
-        //public static bool IsWeekend(this DateTimeOffset dateTimeOffset)
-        //{
-        //    return dateTimeOffset.DayOfWeek == DayOfWeek.Saturday || dateTimeOffset.DayOfWeek == DayOfWeek.Sunday;
-        //}
+        public static bool IsWeekday(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset)
+        {
+            DayOfWeek adjustedDayOfWeek = dateTimeOffset.ToOffset(timeZoneOffset).DayOfWeek;
+            return adjustedDayOfWeek >= DayOfWeek.Monday && adjustedDayOfWeek <= DayOfWeek.Friday;
+        }
 
-        ///// <summary>
-        ///// Returns a new <see cref="DateTimeOffset"/> representing the specified <paramref name="day"/> of the week for the specified <paramref name="dateTimeOffset"/>.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/>.</param>
-        ///// <param name="day">The target day of the week.</param>
-        ///// <param name="firstDayOfWeek">The first day of the week (default is Monday).</param>
-        ///// <returns>A new <see cref="DateTimeOffset"/> set to the specified <paramref name="day"/> of the week.</returns>
-        //public static DateTimeOffset OnDayOfWeek(this DateTimeOffset dateTimeOffset, DayOfWeek day, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
-        //{
-        //    int days = (7 + day - firstDayOfWeek) % 7;
-        //    return dateTimeOffset
-        //        .OnStartOfWeek(firstDayOfWeek)
-        //        .AddDays(days)
-        //        .At(dateTimeOffset.TimeOfDay);
-        //}
+        public static bool IsWeekday(this DateTimeOffset dateTimeOffset, DateTimeKind kind = DateTimeKind.Unspecified)
+        {
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset);
+            return dateTimeOffset.IsWeekday(timeZoneOffset);
+        }
 
-        ///// <summary>
-        ///// Returns a new <see cref="DateTimeOffset"/> representing the end of the month at 23:59:59.999 of the original <paramref name="dateTimeOffset"/>.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/> to adjust.</param>
-        ///// <returns>A new <see cref="DateTimeOffset"/> set to the end of the month.</returns>
-        //public static DateTimeOffset OnEndOfMonth(this DateTimeOffset dateTimeOffset)
-        //{
-        //    int lastDayOfMonth = DateTimeOffset.DaysInMonth(dateTimeOffset.Year, dateTimeOffset.Month);
-        //    return dateTimeOffset
-        //        .ChangeDay(lastDayOfMonth)
-        //        .AtEndOfDay();
-        //}
+        public static bool IsWeekend(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset)
+        {
+            DayOfWeek adjustedDayOfWeek = dateTimeOffset.ToOffset(timeZoneOffset).DayOfWeek;
+            return adjustedDayOfWeek == DayOfWeek.Saturday || adjustedDayOfWeek == DayOfWeek.Sunday;
+        }
 
-        ///// <summary>
-        ///// Returns a new <see cref="DateTimeOffset"/> representing the end of the quarter for the specified <paramref name="dateTimeOffset"/>.
-        ///// Quarters are numbered from 1 to 4.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/>.</param>
-        ///// <returns>A new <see cref="DateTimeOffset"/> set to the end of the quarter.</returns>
-        //public static DateTimeOffset OnEndOfQuarter(this DateTimeOffset dateTimeOffset)
-        //{
-        //    int currentQuarter = dateTimeOffset.GetCurrentQuarter();
-        //    int endOfQuarterMonth = currentQuarter * 3;
+        public static bool IsWeekend(this DateTimeOffset dateTimeOffset, DateTimeKind kind = DateTimeKind.Unspecified)
+        {
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset);
+            return dateTimeOffset.IsWeekend(timeZoneOffset);
+        }
 
-        //    return dateTimeOffset
-        //        .ChangeMonth(endOfQuarterMonth)
-        //        .OnEndOfMonth();
-        //}
+        public static DateTimeOffset OnEndOfMonth(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset)
+        {
+            int lastDayOfMonth = DateTime.DaysInMonth(dateTimeOffset.Year, dateTimeOffset.Month);
+            return dateTimeOffset
+                .ChangeDay(lastDayOfMonth)
+                .AtEndOfDay(timeZoneOffset);
+        }
 
-        ///// <summary>
-        ///// Returns a new <see cref="DateTimeOffset"/> representing the end of the week for the specified <paramref name="dateTimeOffset"/>.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/>.</param>
-        ///// <param name="firstDayOfWeek">The first day of the week (default is Monday).</param>
-        ///// <returns>A new <see cref="DateTimeOffset"/> set to the end of the week.</returns>
-        //public static DateTimeOffset OnEndOfWeek(this DateTimeOffset dateTimeOffset, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
-        //{
-        //    int diff = (7 + dateTimeOffset.DayOfWeek - firstDayOfWeek) % 7;
-        //    return dateTimeOffset
-        //        .Date
-        //        .AddDays(6 - diff)
-        //        .AtEndOfDay();
-        //}
+        public static DateTimeOffset OnEndOfMonth(this DateTimeOffset dateTimeOffset, DateTimeKind kind = DateTimeKind.Unspecified)
+        {
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset);
+            return dateTimeOffset.OnEndOfMonth(timeZoneOffset);
+        }
 
-        ///// <summary>
-        ///// Returns a new <see cref="DateTimeOffset"/> representing the end of the year on 31th December at 23:59:59.999 of the original <paramref name="dateTimeOffset"/>.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/> to adjust.</param>
-        ///// <returns>A new <see cref="DateTimeOffset"/> set to the end of the year.</returns>
-        //public static DateTimeOffset OnEndOfYear(this DateTimeOffset dateTimeOffset)
-        //{
-        //    return dateTimeOffset
-        //        .ChangeMonth(12)
-        //        .OnEndOfMonth();
-        //}
+        public static DateTimeOffset OnEndOfQuarter(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset)
+        {
+            int currentQuarter = dateTimeOffset.GetCurrentQuarter();
+            int endOfQuarterMonth = currentQuarter * 3;
 
-        ///// <summary>
-        ///// Returns a new <see cref="DateTimeOffset"/> representing the start of the month at 00:00:00.000 of the original <paramref name="dateTimeOffset"/>.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/> to adjust.</param>
-        ///// <returns>A new <see cref="DateTimeOffset"/> set to the start of the month.</returns>
-        //public static DateTimeOffset OnStartOfMonth(this DateTimeOffset dateTimeOffset)
-        //{
-        //    return dateTimeOffset
-        //        .ChangeDay(1)
-        //        .AtStartOfDay();
-        //}
+            return dateTimeOffset
+                .ChangeMonth(endOfQuarterMonth)
+                .OnEndOfMonth(timeZoneOffset);
+        }
 
-        ///// <summary>
-        ///// Returns a new <see cref="DateTimeOffset"/> representing the start of the quarter for the specified <paramref name="dateTimeOffset"/>.
-        ///// Quarters are numbered from 1 to 4.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/>.</param>
-        ///// <returns>A new <see cref="DateTimeOffset"/> set to the start of the quarter.</returns>
-        //public static DateTimeOffset OnStartOfQuarter(this DateTimeOffset dateTimeOffset)
-        //{
-        //    int currentQuarter = dateTimeOffset.GetCurrentQuarter();
-        //    int startOfQuarterMonth = (currentQuarter - 1) * 3 + 1;
+        public static DateTimeOffset OnEndOfQuarter(this DateTimeOffset dateTimeOffset, DateTimeKind kind = DateTimeKind.Unspecified)
+        {
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset);
+            return dateTimeOffset.OnEndOfQuarter(timeZoneOffset);
+        }
 
-        //    return dateTimeOffset
-        //        .ChangeMonth(startOfQuarterMonth)
-        //        .OnStartOfMonth();
-        //}
+        public static DateTimeOffset OnEndOfWeek(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
+        {
+            int diff = (7 + dateTimeOffset.DayOfWeek - firstDayOfWeek) % 7;
+            return dateTimeOffset
+                .AddDays(6 - diff)
+                .AtEndOfDay(timeZoneOffset);
+        }
 
-        ///// <summary>
-        ///// Returns a new <see cref="DateTimeOffset"/> representing the start of the week for the specified <paramref name="dateTimeOffset"/>.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/>.</param>
-        ///// <param name="firstDayOfWeek">The first day of the week (default is Monday).</param>
-        ///// <returns>A new <see cref="DateTimeOffset"/> set to the start of the week.</returns>
-        //public static DateTimeOffset OnStartOfWeek(this DateTimeOffset dateTimeOffset, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
-        //{
-        //    int diff = (7 + dateTimeOffset.DayOfWeek - firstDayOfWeek) % 7;
-        //    return dateTimeOffset.Date.AddDays(-diff);
-        //}
+        public static DateTimeOffset OnEndOfWeek(this DateTimeOffset dateTimeOffset, DateTimeKind kind = DateTimeKind.Unspecified, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
+        {
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset); 
+            return dateTimeOffset.OnEndOfWeek(timeZoneOffset);
+        }
 
-        ///// <summary>
-        ///// Returns a new <see cref="DateTimeOffset"/> representing the start of the year on 1st January at 00:00:00.000 of the original <paramref name="dateTimeOffset"/>.
-        ///// </summary>
-        ///// <param name="dateTimeOffset">The original <see cref="DateTimeOffset"/> to adjust.</param>
-        ///// <returns>A new <see cref="DateTimeOffset"/> set to the start of the year.</returns>
-        //public static DateTimeOffset OnStartOfYear(this DateTimeOffset dateTimeOffset)
-        //{
-        //    return dateTimeOffset
-        //        .ChangeMonth(1)
-        //        .OnStartOfMonth();
-        //}
+        public static DateTimeOffset OnEndOfYear(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset)
+        {
+            return dateTimeOffset
+                .ChangeMonth(12)
+                .OnEndOfMonth(timeZoneOffset);
+        }
+
+        public static DateTimeOffset OnEndOfYear(this DateTimeOffset dateTimeOffset, DateTimeKind kind = DateTimeKind.Unspecified)
+        {
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset);
+            return dateTimeOffset.OnEndOfYear(timeZoneOffset);
+        }
+
+        public static DateTimeOffset OnStartOfMonth(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset)
+        {
+            return dateTimeOffset
+                .ChangeDay(1)
+                .AtStartOfDay(timeZoneOffset);
+        }
+
+        public static DateTimeOffset OnStartOfMonth(this DateTimeOffset dateTimeOffset, DateTimeKind kind = DateTimeKind.Unspecified)
+        {
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset);
+            return dateTimeOffset.OnStartOfMonth(timeZoneOffset);
+        }
+
+        public static DateTimeOffset OnStartOfQuarter(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset)
+        {
+            int currentQuarter = dateTimeOffset.GetCurrentQuarter(timeZoneOffset);
+            int startOfQuarterMonth = (currentQuarter - 1) * 3 + 1;
+
+            return dateTimeOffset
+                .ChangeMonth(startOfQuarterMonth)
+                .OnStartOfMonth(timeZoneOffset);
+        }
+
+        public static DateTimeOffset OnStartOfQuarter(this DateTimeOffset dateTimeOffset, DateTimeKind kind = DateTimeKind.Unspecified)
+        {
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset);
+            return dateTimeOffset.OnStartOfQuarter(timeZoneOffset);
+        }
+
+        public static DateTimeOffset OnStartOfWeek(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
+        {
+            DayOfWeek dayOfWeek = dateTimeOffset.ToOffset(timeZoneOffset).DayOfWeek;
+            int diff = (7 + dayOfWeek - firstDayOfWeek) % 7;
+
+            return dateTimeOffset
+                .AtStartOfDay(timeZoneOffset)
+                .AddDays(-diff);
+        }
+
+        public static DateTimeOffset OnStartOfWeek(this DateTimeOffset dateTimeOffset, DateTimeKind kind = DateTimeKind.Unspecified, DayOfWeek firstDayOfWeek = DayOfWeek.Monday)
+        {
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset);
+            return dateTimeOffset.OnStartOfWeek(timeZoneOffset, firstDayOfWeek);
+        }
+
+        public static DateTimeOffset OnStartOfYear(this DateTimeOffset dateTimeOffset, TimeSpan timeZoneOffset)
+        {
+            return dateTimeOffset
+                .ChangeMonth(1)
+                .OnStartOfMonth(timeZoneOffset);
+        }
+
+        public static DateTimeOffset OnStartOfYear(this DateTimeOffset dateTimeOffset, DateTimeKind kind = DateTimeKind.Unspecified)
+        {
+            TimeSpan timeZoneOffset = GetTimeZoneOffsetFromKind(kind, dateTimeOffset.Offset);
+            return dateTimeOffset.OnStartOfYear(timeZoneOffset);
+        }
     }
 }

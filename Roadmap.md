@@ -1,25 +1,19 @@
 # LiteWare.DateAndTime Roadmap
 
-## Milestone v0.1.0 (pre-release alpha)
+## Milestone v0.1.0 (alpha)
 
-- RelativeDateTime
-- DateTime extensions
+- [x] TimeSpan extensions
+- [x] DateTime extensions
+- [ ] DateTimeOffset extensions
+- [x] RelativeDateTime
 
-## Milestone v0.2.0 (pre-release alpha)
+## Milestone v0.2.0 (beta)
 
-- RelativeTimeSpan
-- TimeSpan extensions
-
-## Milestone v0.3.0 (pre-release beta)
-
-- RelativeDateTimeOffset
-- DateTimeOffset extensions
-- Unit tests
-
-## Milestone v0.4.0 (pre-release beta)
-
-- DateTimeRange
-- DateTimeRangePreset + extensions
+- [ ] Date time range feature
+  - [ ] DateTimeRange
+  - [ ] DateTimeRangePreset
+  - [ ] Extensions methods
+- [ ] Unit tests
 
 ## Milestone v1.0.0
 
